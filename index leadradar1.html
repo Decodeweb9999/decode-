@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadRadar — Prospecção Inteligente de Clientes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= DESIGN TOKENS ============================= */
+:root{
+  /* Paleta escura inspirada no decodeweb.digital: preto profundo + verde-limão neon + ciano */
+  --cor-fundo:#0A0A0C;
+  --cor-superficie:#151619;
+  --cor-superficie-2:#1D1F24;
+  --cor-borda:#2A2C31;
+  --cor-texto:#F4F5F7;
+  --cor-texto-suave:#9A9DA8;
+  --cor-texto-fraco:#63666F;
+  --cor-sidebar:#08090A;
+  --cor-sidebar-hover:#1A1C20;
+  --cor-sidebar-texto:#9598A3;
+  --cor-primaria:#D6FF3B;
+  --cor-primaria-escura:#A9CC2E;
+  --cor-primaria-clara:rgba(214,255,59,.14);
+  --cor-acento:#2FE1D1;
+  --cor-acento-clara:rgba(47,225,209,.14);
+  --cor-sucesso:#22B573;
+  --cor-sucesso-clara:rgba(34,181,115,.14);
+  --cor-alerta-clara:rgba(47,225,209,.14);
+  --cor-perigo:#F0605E;
+  --cor-perigo-clara:rgba(240,96,94,.14);
+  --cor-texto-em-acento:#0A0A0C;
+  --sombra-sm:0 1px 3px rgba(0,0,0,.4);
+  --sombra-md:0 6px 24px rgba(0,0,0,.45);
+  --sombra-lg:0 20px 50px rgba(0,0,0,.55);
+  --raio-sm:8px;
+  --raio-md:14px;
+  --raio-lg:20px;
+  --fonte-titulo:'Sora',system-ui,sans-serif;
+  --fonte-corpo:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--fonte-corpo);
+  background:var(--cor-fundo);
+  color:var(--cor-texto);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--fonte-titulo); margin:0; letter-spacing:-0.01em;}
+p{margin:0;}
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit; font-size:14px;}
+.oculto{display:none !important;}
+svg{display:block;}
+::selection{background:var(--cor-primaria-clara); color:var(--cor-texto);}
+
+/* ============================= LOGIN ============================= */
+.tela-login{
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(214,255,59,.14), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(47,225,209,.16), transparent 45%),
+    var(--cor-sidebar);
+  padding:24px;
+}
+.login-card{
+  width:100%; max-width:420px;
+  background:var(--cor-superficie);
+  border-radius:var(--raio-lg);
+  box-shadow:var(--sombra-lg);
+  padding:40px 36px 32px;
+}
+.login-marca{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.login-marca-icone{
+  width:38px; height:38px; border-radius:10px;
+  background:linear-gradient(135deg,var(--cor-primaria),var(--cor-primaria-escura));
+  display:flex; align-items:center; justify-content:center; color:var(--cor-texto-em-acento);
+}
+.login-marca-texto{font-family:var(--fonte-titulo); font-weight:800; font-size:22px;}
+.login-subtitulo{color:var(--cor-texto-suave); font-size:14.5px; margin-bottom:28px;}
+.login-form{display:flex; flex-direction:column; gap:16px;}
+.campo{display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:600; color:var(--cor-texto);}
+.campo input, .campo select, .campo textarea{
+  border:1.5px solid var(--cor-borda); border-radius:var(--raio-sm);
+  padding:11px 13px; font-size:14.5px; color:var(--cor-texto);
+  background:var(--cor-superficie-2);
+  transition:border-color .15s, box-shadow .15s;
+}
+.campo input:focus, .campo select:focus, .campo textarea:focus{
+  outline:none; border-color:var(--cor-primaria);
+  box-shadow:0 0 0 3px var(--cor-primaria-clara);
+}
+.botao{
+  border:none; border-radius:var(--raio-sm); padding:11px 18px;
+  font-weight:700; font-size:14.5px; transition:transform .1s, box-shadow .15s, background .15s;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+}
+.botao:active{transform:translateY(1px);}
+.botao-full{width:100%;}
+.botao-primario{background:var(--cor-primaria); color:var(--cor-texto-em-acento); box-shadow:var(--sombra-sm);}
+.botao-primario:hover{background:var(--cor-primaria-escura);}
+.botao-secundario{background:var(--cor-superficie-2); color:var(--cor-texto); border:1.5px solid var(--cor-borda);}
+.botao-secundario:hover{border-color:var(--cor-primaria); color:var(--cor-primaria);}
+.botao-fantasma{background:transparent; color:var(--cor-texto-suave);}
+.botao-fantasma:hover{color:var(--cor-texto);}
+.botao-perigo{background:var(--cor-perigo-clara); color:var(--cor-perigo);}
+.botao-perigo:hover{background:var(--cor-perigo); color:#fff;}
+.login-divisor{
+  display:flex; align-items:center; gap:12px; margin:22px 0 16px;
+  color:var(--cor-texto-fraco); font-size:12.5px; text-transform:uppercase; letter-spacing:.04em;
+}
+.login-divisor::before,.login-divisor::after{content:''; flex:1; height:1px; background:var(--cor-borda);}
+.login-demo{display:flex; flex-direction:column; gap:10px;}
+.login-aviso{margin-top:18px; font-size:12.5px; color:var(--cor-texto-fraco); text-align:center; line-height:1.5;}
+
+/* ============================= APP SHELL ============================= */
+.app-principal{display:flex; min-height:100vh;}
+.barra-lateral{
+  width:248px; flex-shrink:0; background:var(--cor-sidebar); color:var(--cor-sidebar-texto);
+  display:flex; flex-direction:column; justify-content:space-between; padding:22px 16px;
+  position:sticky; top:0; height:100vh;
+}
+.marca-mini{display:flex; align-items:center; gap:10px; padding:6px 10px 26px;}
+.marca-mini-icone{
+  width:30px; height:30px; border-radius:8px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--cor-primaria),var(--cor-acento));
+  display:flex; align-items:center; justify-content:center; color:var(--cor-texto-em-acento);
+}
+.marca-mini-texto{font-family:var(--fonte-titulo); font-weight:800; font-size:17px; color:#fff;}
+.navegacao{display:flex; flex-direction:column; gap:4px;}
+.item-nav{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  background:transparent; border:none; color:var(--cor-sidebar-texto);
+  padding:11px 12px; border-radius:var(--raio-sm); font-size:14.5px; font-weight:600;
+  transition:background .15s, color .15s;
+}
+.item-nav-icone{display:flex; opacity:.85;}
+.item-nav:hover{background:var(--cor-sidebar-hover); color:#fff;}
+.item-nav.ativo{background:var(--cor-primaria); color:var(--cor-texto-em-acento);}
+.item-nav.ativo .item-nav-icone{opacity:1;}
+.barra-lateral-rodape{display:flex; flex-direction:column; gap:10px;}
+.usuario-card{
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  background:var(--cor-sidebar-hover); border-radius:var(--raio-sm);
+}
+.usuario-avatar{
+  width:34px; height:34px; border-radius:50%; background:var(--cor-acento); color:var(--cor-texto-em-acento);
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0;
+}
+.usuario-detalhe{display:flex; flex-direction:column; overflow:hidden;}
+.usuario-detalhe strong{color:#fff; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.usuario-detalhe small{color:var(--cor-sidebar-texto); font-size:11.5px;}
+.botao-sair{
+  display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  background:transparent; border:1.5px solid rgba(255,255,255,.12); color:var(--cor-sidebar-texto);
+  padding:9px; border-radius:var(--raio-sm); font-size:13.5px; font-weight:600;
+}
+.botao-sair:hover{border-color:var(--cor-perigo); color:#fff; background:rgba(229,72,77,.18);}
+
+.conteudo-principal{flex:1; min-width:0; display:flex; flex-direction:column;}
+.barra-topo{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 32px; border-bottom:1px solid var(--cor-borda); background:var(--cor-superficie);
+  position:sticky; top:0; z-index:5;
+}
+.barra-topo h1{font-size:21px;}
+.selo-modo{
+  font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px;
+  background:var(--cor-acento-clara); color:var(--cor-acento); border:1px solid rgba(47,225,209,.35);
+}
+.view{padding:28px 32px 60px; display:none;}
+.view.ativo{display:block;}
+
+/* ============================= BUSCAR ============================= */
+.painel-busca{
+  background:var(--cor-superficie); border:1px solid var(--cor-borda); border-radius:var(--raio-lg);
+  padding:24px; box-shadow:var(--sombra-sm); margin-bottom:28px;
+}
+.painel-busca-topo{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;}
+.painel-busca-topo h3{font-size:16px;}
+.link-limpar{background:none; border:none; color:var(--cor-texto-suave); font-size:13px; font-weight:600;}
+.link-limpar:hover{color:var(--cor-perigo);}
+.categorias-nicho{display:flex; flex-direction:column; gap:14px; max-height:230px; overflow-y:auto; padding-right:6px; margin-bottom:18px;}
+.categoria-grupo-titulo{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--cor-texto-fraco); margin-bottom:8px;}
+.chips-nicho{display:flex; flex-wrap:wrap; gap:8px;}
+.chip-nicho{
+  border:1.5px solid var(--cor-borda); background:var(--cor-superficie-2); color:var(--cor-texto);
+  padding:7px 13px; border-radius:20px; font-size:13px; font-weight:600; transition:all .12s;
+}
+.chip-nicho:hover{border-color:var(--cor-primaria);}
+.chip-nicho.selecionado{background:var(--cor-primaria); border-color:var(--cor-primaria); color:var(--cor-texto-em-acento);}
+.linha-filtros{display:grid; grid-template-columns:1.3fr 1fr auto; gap:14px; align-items:end;}
+.segmentado{display:flex; border:1.5px solid var(--cor-borda); border-radius:var(--raio-sm); overflow:hidden;}
+.segmentado button{
+  flex:1; border:none; background:var(--cor-superficie-2); color:var(--cor-texto-suave);
+  padding:11px 10px; font-size:13.5px; font-weight:600; border-right:1.5px solid var(--cor-borda);
+}
+.segmentado button:last-child{border-right:none;}
+.segmentado button.ativo{background:var(--cor-primaria); color:var(--cor-texto-em-acento);}
+.btn-buscar{padding:12px 24px; font-size:15px; white-space:nowrap;}
+
+.resultados-topo{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+.resultados-contagem{font-size:14px; color:var(--cor-texto-suave);}
+.resultados-contagem strong{color:var(--cor-texto);}
+.select-ordenar{border:1.5px solid var(--cor-borda); border-radius:var(--raio-sm); padding:8px 12px; background:var(--cor-superficie); font-size:13px; font-weight:600; color:var(--cor-texto-suave);}
+
+.grade-resultados{display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:16px;}
+.card-resultado{
+  background:var(--cor-superficie); border:1px solid var(--cor-borda); border-radius:var(--raio-md);
+  padding:18px; box-shadow:var(--sombra-sm); display:flex; flex-direction:column; gap:12px;
+  transition:box-shadow .15s, transform .15s;
+}
+.card-resultado:hover{box-shadow:var(--sombra-md); transform:translateY(-2px);}
+.card-resultado-topo{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.card-resultado-nome{font-size:15.5px; font-weight:700; line-height:1.3;}
+.card-resultado-nicho{font-size:11.5px; color:var(--cor-texto-fraco); font-weight:600; text-transform:uppercase; letter-spacing:.03em; margin-top:2px;}
+.selo-score{
+  flex-shrink:0; font-size:12.5px; font-weight:800; padding:5px 10px; border-radius:20px; white-space:nowrap;
+}
+.selo-score.alta{background:var(--cor-sucesso-clara); color:var(--cor-sucesso);}
+.selo-score.media{background:var(--cor-acento-clara); color:var(--cor-acento);}
+.selo-score.baixa{background:rgba(255,255,255,.06); color:var(--cor-texto-suave);}
+.card-resultado-endereco{font-size:13px; color:var(--cor-texto-suave); line-height:1.4;}
+.card-resultado-avaliacao{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--cor-texto-suave);}
+.card-resultado-avaliacao svg{color:var(--cor-acento);}
+.card-resultado-linha{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--cor-texto);}
+.card-resultado-linha svg{color:var(--cor-texto-fraco); flex-shrink:0;}
+.selo-sem-site{background:var(--cor-perigo-clara); color:var(--cor-perigo); font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:12px;}
+.selo-com-site{color:var(--cor-acento); font-weight:600; font-size:13px; text-decoration:none;}
+.selo-com-site:hover{text-decoration:underline;}
+.card-resultado-acoes{display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;}
+.card-resultado-acoes .botao{flex:1; padding:9px 10px; font-size:13px;}
+.link-atribuicao{font-size:11px; color:var(--cor-texto-fraco); text-decoration:none; display:flex; align-items:center; gap:5px; margin-top:2px;}
+.link-atribuicao:hover{color:var(--cor-acento);}
+
+.estado-vazio{
+  text-align:center; padding:60px 20px; color:var(--cor-texto-suave);
+  background:var(--cor-superficie); border:1.5px dashed var(--cor-borda); border-radius:var(--raio-lg);
+}
+.estado-vazio-icone{margin:0 auto 14px; width:52px; height:52px; border-radius:50%; background:var(--cor-acento-clara); color:var(--cor-acento); display:flex; align-items:center; justify-content:center;}
+.estado-vazio h4{font-size:16px; margin-bottom:6px; color:var(--cor-texto);}
+.estado-vazio p{font-size:13.5px; max-width:340px; margin:0 auto;}
+
+.esqueleto{display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:16px;}
+.esqueleto-card{height:190px; border-radius:var(--raio-md); background:linear-gradient(100deg,#17181c 30%,#212226 50%,#17181c 70%); background-size:200% 100%; animation:brilho 1.3s infinite;}
+@keyframes brilho{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ============================= PIPELINE / KANBAN ============================= */
+.kanban-quadro{display:grid; grid-template-columns:repeat(5,minmax(230px,1fr)); gap:14px; overflow-x:auto; padding-bottom:8px;}
+.kanban-coluna{background:var(--cor-superficie-2); border-radius:var(--raio-md); border:1px solid var(--cor-borda); display:flex; flex-direction:column; min-width:230px;}
+.kanban-coluna-cabeca{display:flex; justify-content:space-between; align-items:center; padding:14px 14px 10px;}
+.kanban-coluna-cabeca h4{font-size:13.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--cor-texto-suave);}
+.kanban-contagem{background:var(--cor-borda); color:var(--cor-texto-suave); font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:10px;}
+.kanban-coluna[data-status="vendido"] .kanban-coluna-cabeca h4{color:var(--cor-sucesso);}
+.kanban-coluna[data-status="perdido"] .kanban-coluna-cabeca h4{color:var(--cor-perigo);}
+.kanban-coluna-corpo{flex:1; padding:0 10px 10px; display:flex; flex-direction:column; gap:10px; min-height:120px;}
+.kanban-coluna-corpo.arraste-sobre{background:var(--cor-primaria-clara); border-radius:var(--raio-sm);}
+.card-kanban{
+  background:var(--cor-superficie); border:1px solid var(--cor-borda); border-radius:var(--raio-sm);
+  padding:12px; box-shadow:var(--sombra-sm); cursor:grab; display:flex; flex-direction:column; gap:8px;
+}
+.card-kanban.arrastando{opacity:.4;}
+.card-kanban-topo{display:flex; justify-content:space-between; gap:6px;}
+.card-kanban-nome{font-size:13.5px; font-weight:700; line-height:1.3;}
+.card-kanban-nicho{font-size:11px; color:var(--cor-texto-fraco); font-weight:600;}
+.card-kanban-rodape{display:flex; justify-content:space-between; align-items:center;}
+.card-kanban-acoes{display:flex; gap:4px;}
+.icone-botao{
+  background:transparent; border:none; color:var(--cor-texto-fraco); padding:5px; border-radius:6px; display:flex;
+}
+.icone-botao:hover{background:var(--cor-perigo-clara); color:var(--cor-perigo);}
+.kanban-vazio{font-size:12px; color:var(--cor-texto-fraco); text-align:center; padding:16px 6px;}
+.dica-arraste{font-size:12.5px; color:var(--cor-texto-fraco); margin-bottom:14px; display:flex; align-items:center; gap:6px;}
+
+/* ============================= HISTÓRICO ============================= */
+.abas-slider{
+  position:relative; display:inline-grid; grid-auto-flow:column; gap:2px;
+  background:var(--cor-superficie-2); border:1px solid var(--cor-borda); border-radius:999px;
+  padding:5px; margin-bottom:24px;
+}
+.abas-slider-fundo{
+  position:absolute; top:5px; left:0; height:calc(100% - 10px);
+  background:var(--cor-primaria); border-radius:999px; z-index:0;
+  transition:transform .28s cubic-bezier(.4,0,.2,1), width .28s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 4px 14px rgba(214,255,59,.25);
+}
+.aba-slider{
+  position:relative; z-index:1; display:flex; align-items:center; gap:8px;
+  background:transparent; border:none; padding:10px 20px; border-radius:999px;
+  font-size:13.5px; font-weight:700; color:var(--cor-texto-suave); white-space:nowrap;
+  transition:color .2s;
+}
+.aba-slider svg{width:15px; height:15px; opacity:.75; transition:opacity .2s;}
+.aba-slider:hover{color:var(--cor-texto);}
+.aba-slider.ativa{color:var(--cor-texto-em-acento);}
+.aba-slider.ativa svg{opacity:1;}
+.lista-historico{display:flex; flex-direction:column; gap:10px;}
+.item-historico{
+  display:flex; align-items:center; gap:14px; background:var(--cor-superficie); border:1px solid var(--cor-borda);
+  border-radius:var(--raio-sm); padding:14px 16px;
+}
+.item-historico-icone{width:36px; height:36px; border-radius:10px; background:var(--cor-acento-clara); color:var(--cor-acento); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.item-historico-corpo{flex:1; min-width:0;}
+.item-historico-titulo{font-size:14px; font-weight:600;}
+.item-historico-meta{font-size:12.5px; color:var(--cor-texto-suave); margin-top:2px;}
+.item-historico-data{font-size:12px; color:var(--cor-texto-fraco); white-space:nowrap;}
+.botao-rebuscar{font-size:12.5px; padding:6px 12px;}
+
+/* ============================= ADMIN ============================= */
+.admin-topo{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; gap:10px;}
+.admin-topo h3{display:flex; align-items:center; gap:10px;}
+.aviso-admin{background:var(--cor-acento-clara); border:1px solid rgba(47,225,209,.3); color:var(--cor-acento); font-size:13px; padding:12px 16px; border-radius:var(--raio-sm); margin-bottom:20px; line-height:1.5;}
+.cartao-config-acesso{
+  display:flex; justify-content:space-between; align-items:center; gap:20px;
+  background:var(--cor-superficie); border:1px solid var(--cor-borda); border-radius:var(--raio-md);
+  padding:18px 22px; box-shadow:var(--sombra-sm);
+}
+.cartao-config-acesso h3{font-size:15px; margin-bottom:4px;}
+.cartao-config-acesso p{font-size:13px; color:var(--cor-texto-suave); max-width:460px; line-height:1.5;}
+.interruptor{
+  flex-shrink:0; width:46px; height:26px; border-radius:20px; border:none;
+  background:var(--cor-borda); padding:3px; display:flex; align-items:center;
+  transition:background .2s;
+}
+.interruptor-bolinha{
+  width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:var(--sombra-sm);
+  transition:transform .2s;
+}
+.interruptor.ativo{background:var(--cor-sucesso);}
+.interruptor.ativo .interruptor-bolinha{transform:translateX(20px);}
+.lista-solicitacoes{display:flex; flex-direction:column; gap:10px;}
+.card-solicitacao{
+  display:flex; align-items:center; gap:14px; background:var(--cor-superficie); border:1px solid var(--cor-borda);
+  border-left:3px solid var(--cor-acento); border-radius:var(--raio-sm); padding:14px 16px;
+}
+.card-solicitacao-corpo{flex:1; min-width:0;}
+.card-solicitacao-nome{font-size:14px; font-weight:700;}
+.card-solicitacao-meta{font-size:12.5px; color:var(--cor-texto-suave); margin-top:2px;}
+.card-solicitacao-acoes{display:flex; gap:8px; flex-shrink:0;}
+.card-solicitacao-acoes .botao{padding:8px 14px; font-size:13px;}
+.estado-vazio-mini{font-size:13px; color:var(--cor-texto-fraco); text-align:center; padding:22px; background:var(--cor-superficie); border:1.5px dashed var(--cor-borda); border-radius:var(--raio-md);}
+.tabela{width:100%; border-collapse:collapse; background:var(--cor-superficie); border-radius:var(--raio-md); overflow:hidden; box-shadow:var(--sombra-sm);}
+.tabela th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--cor-texto-fraco); padding:12px 16px; border-bottom:1.5px solid var(--cor-borda); background:var(--cor-superficie-2);}
+.tabela td{padding:13px 16px; border-bottom:1px solid var(--cor-borda); font-size:13.5px;}
+.tabela tr:last-child td{border-bottom:none;}
+.selo-cargo{font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:12px;}
+.selo-cargo.administrador{background:var(--cor-acento-clara); color:var(--cor-acento);}
+.selo-cargo.vendedor{background:rgba(255,255,255,.06); color:var(--cor-texto-suave);}
+
+/* ============================= MODAL / TOAST ============================= */
+.modal-overlay{position:fixed; inset:0; background:rgba(12,14,30,.5); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px;}
+.modal{background:var(--cor-superficie); border:1px solid var(--cor-borda); border-radius:var(--raio-lg); padding:26px; width:100%; max-width:400px; box-shadow:var(--sombra-lg); display:flex; flex-direction:column; gap:14px;}
+.modal h3{font-size:17px;}
+.modal-acoes{display:flex; gap:10px; margin-top:6px;}
+.modal-acoes .botao{flex:1;}
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translate(-50%,20px);
+  background:#202227; color:var(--cor-texto); border:1px solid var(--cor-borda); padding:13px 22px; border-radius:30px; font-size:13.5px; font-weight:600;
+  box-shadow:var(--sombra-lg); opacity:0; pointer-events:none; transition:all .25s; z-index:60; display:flex; align-items:center; gap:8px;
+}
+.toast-visivel{opacity:1; transform:translate(-50%,0);}
+.toast-erro{background:var(--cor-perigo);}
+.toast-sucesso{background:var(--cor-sucesso);}
+
+/* ============================= RESPONSIVO ============================= */
+@media (max-width:900px){
+  .app-principal{flex-direction:column;}
+  .barra-lateral{width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding:12px 16px;}
+  .barra-lateral-topo{display:flex; align-items:center; gap:18px; flex:1;}
+  .marca-mini{padding:0; margin-right:6px;}
+  .navegacao{flex-direction:row; overflow-x:auto;}
+  .item-nav span:last-child{display:none;}
+  .barra-lateral-rodape{flex-direction:row; width:auto;}
+  .usuario-card{display:none;}
+  .view{padding:20px 16px 40px;}
+  .barra-topo{padding:16px;}
+  .linha-filtros{grid-template-columns:1fr; }
+  .kanban-quadro{grid-template-columns:80vw;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================= TELA DE LOGIN ============================= -->
+<div id="tela-login" class="tela-login">
+  <div class="login-card">
+    <div class="login-marca">
+      <span class="login-marca-icone" id="icone-marca-login"></span>
+      <span class="login-marca-texto">LeadRadar</span>
+    </div>
+    <p class="login-subtitulo">Encontre, priorize e feche mais negócios locais.</p>
+    <form id="form-login" class="login-form">
+      <label class="campo">E-mail
+        <input type="email" id="input-email" placeholder="voce@suaempresa.com" required>
+      </label>
+      <label class="campo">Senha
+        <input type="password" id="input-senha" placeholder="••••••••" required>
+      </label>
+      <button type="submit" class="botao botao-primario botao-full">Entrar</button>
+    </form>
+    <div class="login-divisor"><span>novo por aqui?</span></div>
+    <button class="botao botao-secundario botao-full" data-acao="abrir-solicitar-acesso">Solicitar acesso</button>
+    <p class="login-aviso" id="aviso-modo-login"></p>
+  </div>
+</div>
+
+<!-- ============================= APP PRINCIPAL ============================= -->
+<div id="app-principal" class="app-principal oculto">
+  <aside class="barra-lateral">
+    <div class="barra-lateral-topo">
+      <div class="marca-mini">
+        <span class="marca-mini-icone" id="icone-marca-mini"></span>
+        <span class="marca-mini-texto">LeadRadar</span>
+      </div>
+      <nav class="navegacao">
+        <button class="item-nav ativo" data-view="buscar"><span class="item-nav-icone" data-icone="buscar"></span><span>Buscar Empresas</span></button>
+        <button class="item-nav" data-view="pipeline"><span class="item-nav-icone" data-icone="pipeline"></span><span>Pipeline</span></button>
+        <button class="item-nav" data-view="historico"><span class="item-nav-icone" data-icone="historico"></span><span>Histórico</span></button>
+        <button class="item-nav somente-admin oculto" data-view="admin"><span class="item-nav-icone" data-icone="admin"></span><span>Administração</span></button>
+      </nav>
+    </div>
+    <div class="barra-lateral-rodape">
+      <div class="usuario-card">
+        <div class="usuario-avatar" id="usuario-avatar">A</div>
+        <div class="usuario-detalhe">
+          <strong id="usuario-nome">—</strong>
+          <small id="usuario-cargo">—</small>
+        </div>
+      </div>
+      <button class="botao-sair" data-acao="sair"><span data-icone="sair"></span>Sair</button>
+    </div>
+  </aside>
+
+  <main class="conteudo-principal">
+    <header class="barra-topo">
+      <h1 id="titulo-view">Buscar Empresas</h1>
+      <span class="selo-modo" id="selo-modo"></span>
+    </header>
+
+    <!-- VIEW: BUSCAR -->
+    <section id="view-buscar" class="view ativo">
+      <div class="painel-busca">
+        <div class="painel-busca-topo">
+          <h3>1. Escolha o nicho</h3>
+          <button class="link-limpar" data-acao="limpar-nicho">Limpar seleção</button>
+        </div>
+        <div class="categorias-nicho" id="lista-categorias"></div>
+        <label class="campo" style="margin-bottom:18px;">Não achou o nicho? Digite o seu
+          <input type="text" id="input-nicho-custom" placeholder="Ex: clínica veterinária, distribuidora de embalagens...">
+        </label>
+        <h3 style="margin-bottom:14px;">2. Onde buscar</h3>
+        <div class="linha-filtros">
+          <label class="campo">Cidade / região
+            <input type="text" id="input-localizacao" placeholder="Ex: Goiânia - GO">
+          </label>
+          <label class="campo">Site do estabelecimento
+            <div class="segmentado" id="segmentado-site">
+              <button data-valor="todos" class="ativo">Todos</button>
+              <button data-valor="sem">Sem site</button>
+              <button data-valor="com">Com site</button>
+            </div>
+          </label>
+          <button class="botao botao-primario btn-buscar" data-acao="buscar"><span data-icone="buscar"></span>Buscar empresas</button>
+        </div>
+      </div>
+
+      <div class="resultados-topo">
+        <div class="resultados-contagem" id="resultados-contagem"></div>
+        <select class="select-ordenar" id="select-ordenar">
+          <option value="score">Ordenar por: maior chance de fechar</option>
+          <option value="nota">Ordenar por: melhor nota</option>
+          <option value="avaliacoes">Ordenar por: mais avaliações</option>
+        </select>
+      </div>
+      <div id="area-resultados"></div>
+    </section>
+
+    <!-- VIEW: PIPELINE -->
+    <section id="view-pipeline" class="view">
+      <div class="dica-arraste"><span data-icone="pipeline"></span> Arraste os cards entre as colunas para mudar o status do lead.</div>
+      <div class="kanban-quadro" id="quadro-kanban"></div>
+    </section>
+
+    <!-- VIEW: HISTÓRICO -->
+    <section id="view-historico" class="view">
+      <div class="abas-slider" data-quantidade="2">
+        <span class="abas-slider-fundo" id="abas-slider-fundo"></span>
+        <button class="aba-slider ativa" data-aba="buscas"><span data-icone="buscar"></span>Histórico de buscas</button>
+        <button class="aba-slider" data-aba="clientes"><span data-icone="pipeline"></span>Histórico de clientes</button>
+      </div>
+      <div id="area-historico"></div>
+    </section>
+
+    <!-- VIEW: ADMIN -->
+    <section id="view-admin" class="view">
+      <div class="aviso-admin">Esta área é visível apenas para o cargo <strong>Administrador</strong>. Aqui é possível gerenciar usuários, permissões e solicitações de acesso.</div>
+
+      <div class="cartao-config-acesso">
+        <div>
+          <h3>Aceitar novos cadastros</h3>
+          <p>Quando ativado, qualquer pessoa pode solicitar acesso pela tela de login e a solicitação cai na fila abaixo para sua aprovação.</p>
+        </div>
+        <button class="interruptor" id="interruptor-aceitar-usuarios" data-acao="alternar-aceitar-usuarios" role="switch" aria-checked="false"><span class="interruptor-bolinha"></span></button>
+      </div>
+
+      <div class="admin-topo" style="margin-top:26px;">
+        <h3>Solicitações pendentes <span class="kanban-contagem" id="contagem-pendentes">0</span></h3>
+      </div>
+      <div id="area-solicitacoes" style="margin-bottom:30px;"></div>
+
+      <div class="admin-topo">
+        <h3>Usuários do sistema</h3>
+        <button class="botao botao-primario" data-acao="abrir-novo-usuario"><span data-icone="mais"></span>Novo usuário</button>
+      </div>
+      <table class="tabela">
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Cargo</th><th>Ações</th></tr></thead>
+        <tbody id="corpo-tabela-usuarios"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+<div id="modal-overlay" class="modal-overlay oculto"></div>
+
+<script>
+/* ======================================================================
+   CONFIGURAÇÃO — preencha com seus dados reais do Supabase para sair do
+   modo demonstração. Veja o GUIA-DE-IMPLANTACAO.md para o passo a passo.
+   ====================================================================== */
+const CONFIG = {
+  SUPABASE_URL: '',       // ex: https://xxxxxxxx.supabase.co
+  SUPABASE_ANON_KEY: '',  // chave "anon public" do seu projeto Supabase
+  EDGE_FUNCTION: 'buscar-empresas'
+};
+const MODO_DEMO = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY;
+
+/* ============================= ÍCONES (SVG genéricos, sem marcas) ============================= */
+const TRACOS_ICONE = {
+  buscar:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  pipeline:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="9.5" y="4" width="5" height="10" rx="1"/><rect x="16" y="4" width="5" height="13" rx="1"/>',
+  historico:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>',
+  admin:'<line x1="4" y1="6" x2="20" y2="6"/><circle cx="14" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="16" cy="18" r="2"/>',
+  mais:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  lixo:'<line x1="4" y1="7" x2="20" y2="7"/><rect x="6" y="7" width="12" height="13" rx="1"/><line x1="10" y1="11" x2="10" y2="16"/><line x1="14" y1="11" x2="14" y2="16"/><line x1="9" y1="7" x2="9" y2="4"/><line x1="15" y1="7" x2="15" y2="4"/><line x1="9" y1="4" x2="15" y2="4"/>',
+  telefone:'<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',
+  globo:'<circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><ellipse cx="12" cy="12" rx="4" ry="9"/>',
+  estrela:'<polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"/>',
+  chat:'<rect x="3" y="4" width="18" height="13" rx="4"/><polygon points="8 17 8 21 12 17"/>',
+  sair:'<rect x="4" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="20" y2="12"/><polyline points="16 8 20 12 16 16"/>',
+  email:'<rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/>',
+  mapa:'<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>',
+  externo:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'
+};
+function icone(nome, tamanho){
+  tamanho = tamanho || 18;
+  return '<svg width="'+tamanho+'" height="'+tamanho+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(TRACOS_ICONE[nome]||'')+'</svg>';
+}
+
+/* ============================= DADOS: NICHOS ============================= */
+const NICHOS = [
+  {categoria:'Alimentação', itens:['Restaurante','Lanchonete','Pizzaria','Padaria e Confeitaria','Açougue','Hortifruti','Sorveteria','Distribuidora de Bebidas','Adega','Buffet e Casa de Festas','Food Truck']},
+  {categoria:'Saúde e Beleza', itens:['Salão de Beleza','Barbearia','Clínica Odontológica','Clínica Médica','Clínica de Estética','Academia','Studio de Pilates','Farmácia','Ótica','Spa']},
+  {categoria:'Varejo', itens:['Pet Shop','Loja de Departamento','Loja de Roupas','Loja de Calçados','Papelaria','Mercado e Supermercado','Loja de Eletrônicos','Loja de Móveis','Livraria','Floricultura','Loja de Brinquedos','Loja de Tecidos e Aviamentos','Loja de Presentes']},
+  {categoria:'Construção e Materiais', itens:['Ferragens','Material de Construção','Material Elétrico','Loja de Tintas','Vidraçaria','Marcenaria','Serralheria']},
+  {categoria:'Automotivo', itens:['Oficina Mecânica','Auto Center','Borracharia','Loja de Autopeças','Lava Rápido','Funilaria e Pintura']},
+  {categoria:'Serviços Profissionais', itens:['Escritório de Contabilidade','Escritório de Advocacia','Imobiliária','Corretora de Seguros','Agência de Viagens','Autoescola','Escola de Idiomas']},
+  {categoria:'Outros Comércios e Serviços', itens:['Posto de Gasolina','Loja de Conveniência','Chaveiro','Gráfica','Assistência Técnica','Lavanderia','Casa de Câmbio','Hotel e Pousada','Depósito de Gás']}
+];
+
+/* ============================= ESTADO GLOBAL ============================= */
+const state = {
+  usuario:null,
+  telaAtual:'buscar',
+  nichoSelecionado:null,
+  filtroSite:'todos',
+  buscando:false,
+  resultados:[],
+  ordenacao:'score',
+  abaHistorico:'buscas',
+  pipeline:[],
+  historicoBuscas:[],
+  historicoStatus:[],
+  usuarios:[],
+  aceitaNovosUsuarios:false,
+  solicitacoesAcesso:[]
+};
+
+const COLUNAS_PIPELINE = [
+  {id:'novo_lead', titulo:'Novo Lead'},
+  {id:'em_andamento', titulo:'Em Andamento'},
+  {id:'negociando', titulo:'Negociando'},
+  {id:'vendido', titulo:'Vendido'},
+  {id:'perdido', titulo:'Perdido'}
+];
+
+/* ============================= FÓRMULA DE SCORE (heurística própria — ajuste os pesos como quiser) ============================= */
+function calcularScore(empresa){
+  const pesos = {semSite:35, comSite:5, notaIdeal:20, notaAlta:10, notaBaixa:8, notaMedia:12,
+                 avalAtiva:20, avalPoucas:8, avalMuitas:12, telefone:10, perfilCompleto:7};
+  if (empresa.status === 'FECHADO') return 0;
+  let pontos = 0;
+  pontos += empresa.temSite ? pesos.comSite : pesos.semSite;
+  if (typeof empresa.nota === 'number'){
+    if (empresa.nota >= 4.8) pontos += pesos.notaAlta;
+    else if (empresa.nota >= 3.5) pontos += pesos.notaIdeal;
+    else if (empresa.nota < 3.0) pontos += pesos.notaBaixa;
+    else pontos += pesos.notaMedia;
+  }
+  if (typeof empresa.numAvaliacoes === 'number'){
+    if (empresa.numAvaliacoes >= 10 && empresa.numAvaliacoes <= 150) pontos += pesos.avalAtiva;
+    else if (empresa.numAvaliacoes < 10) pontos += pesos.avalPoucas;
+    else pontos += pesos.avalMuitas;
+  }
+  if (empresa.telefone) pontos += pesos.telefone;
+  if (empresa.perfilCompleto) pontos += pesos.perfilCompleto;
+  return Math.min(100, Math.round(pontos));
+}
+function faixaScore(score){
+  if (score >= 70) return {classe:'alta', rotulo:'Alta chance'};
+  if (score >= 40) return {classe:'media', rotulo:'Média chance'};
+  return {classe:'baixa', rotulo:'Baixa chance'};
+}
+
+/* ============================= DADOS MOCK (modo demonstração) ============================= */
+const SUFIXOS_FANTASIA = ['Central','São José','Bom Jesus','Ideal','Popular','Premium','Express','do Bairro','da Vila','União','Nova Era','Real','Divino','Boa Vista','Primavera','Estrela','Horizonte','Confiança','Amigo Fiel','Sucesso'];
+let contadorId = 1;
+function gerarEmpresaMock(nicho, indice){
+  const sufixo = SUFIXOS_FANTASIA[(indice + nicho.length) % SUFIXOS_FANTASIA.length];
+  const temSite = (indice % 5 === 0 || indice % 7 === 0); // ~40% com site
+  const nota = +(3.0 + ((indice * 37) % 19) / 10).toFixed(1);
+  const numAvaliacoes = [4, 8, 22, 45, 63, 91, 130, 210, 310][(indice*3) % 9];
+  const ddd = ['62','11','31','41','51'][(indice) % 5];
+  const telefone = '('+ddd+') 9'+String(1000+((indice*777)%8999)).padStart(4,'0')+'-'+String(1000+((indice*333)%8999)).padStart(4,'0');
+  const empresa = {
+    id: 'demo-'+(contadorId++),
+    placeId: 'ChIJdemo'+contadorId,
+    nome: nicho+' '+sufixo,
+    nicho: nicho,
+    endereco: 'Rua das Palmeiras, '+(100+indice*7)+' — Centro',
+    telefone: telefone,
+    site: temSite ? 'https://www.'+nicho.toLowerCase().replace(/[^a-z]+/g,'')+sufixo.toLowerCase().replace(/[^a-z]+/g,'')+'.com.br' : null,
+    email: temSite && indice % 2 === 0 ? 'contato@'+nicho.toLowerCase().replace(/[^a-z]+/g,'')+'.com.br' : null,
+    nota: nota, numAvaliacoes: numAvaliacoes, temSite: temSite, telefoneDisponivel: true, perfilCompleto: indice % 3 !== 0,
+    linkGoogleMaps: 'https://maps.google.com/?q=place_id:ChIJdemo'+contadorId
+  };
+  empresa.score = calcularScore(empresa);
+  return empresa;
+}
+function gerarResultadosMock(nicho, filtroSite){
+  let lista = [];
+  const qtd = 6 + (nicho.length % 5);
+  for (let i=0;i<qtd;i++) lista.push(gerarEmpresaMock(nicho, i));
+  if (filtroSite === 'com') lista = lista.filter(e=>e.temSite);
+  if (filtroSite === 'sem') lista = lista.filter(e=>!e.temSite);
+  return lista;
+}
+
+// Pipeline inicial de exemplo, para a aba já nascer com algo dentro
+(function seedPipeline(){
+  const exemplos = [
+    {nome:'Pet Shop Amigo Fiel', nicho:'Pet Shop', status:'novo_lead'},
+    {nome:'Ferragens São José', nicho:'Ferragens', status:'em_andamento'},
+    {nome:'Salão Bella Estilo', nicho:'Salão de Beleza', status:'negociando'},
+    {nome:'Distribuidora Central', nicho:'Distribuidora de Bebidas', status:'negociando'},
+    {nome:'Ótica Horizonte', nicho:'Ótica', status:'vendido'},
+    {nome:'Auto Center Popular', nicho:'Auto Center', status:'perdido'}
+  ];
+  const agora = Date.now();
+  exemplos.forEach((ex,i)=>{
+    const empresa = gerarEmpresaMock(ex.nicho, i+1);
+    empresa.nome = ex.nome; empresa.status = ex.status;
+    state.pipeline.push(empresa);
+    state.historicoStatus.push({leadNome:ex.nome, de:null, para:ex.status, quando:new Date(agora - (6-i)*86400000)});
+  });
+  state.historicoBuscas.push(
+    {nicho:'Pet Shop', localizacao:'Goiânia - GO', filtroSite:'todos', resultados:7, quando:new Date(agora - 2*86400000)},
+    {nicho:'Ferragens', localizacao:'Rio Verde - GO', filtroSite:'sem', resultados:4, quando:new Date(agora - 1*86400000)}
+  );
+  // state.usuarios começa vazio de propósito: o primeiro e-mail que fizer login
+  // vira Administrador automaticamente (ver listener do #form-login mais abaixo).
+})();
+
+/* ============================= AUTENTICAÇÃO ============================= */
+function sair(){
+  state.usuario = null;
+  renderizarTudo();
+}
+document.getElementById('form-login').addEventListener('submit', function(e){
+  e.preventDefault();
+  const email = document.getElementById('input-email').value.trim().toLowerCase();
+  if (MODO_DEMO){
+    // Em modo demonstração não há senha real: o e-mail é a chave de identificação.
+    // Ver GUIA-DE-IMPLANTACAO.md para conectar autenticação real (ex: supabase.auth.signInWithPassword).
+    const cadastro = state.usuarios.find(u=>u.email.toLowerCase() === email);
+    if (cadastro){
+      state.usuario = {nome:cadastro.nome, email:cadastro.email, cargo:cadastro.cargo};
+      mostrarToast('Bem-vindo(a), '+cadastro.nome+'!', 'sucesso');
+      renderizarTudo();
+      return;
+    }
+    // Nenhum usuário existe ainda no sistema: primeiro acesso vira Administrador automaticamente.
+    if (state.usuarios.length === 0){
+      const nomeAuto = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      const novoAdmin = {nome:nomeAuto || 'Administrador', email:email, cargo:'administrador'};
+      state.usuarios.push(novoAdmin);
+      state.usuario = {nome:novoAdmin.nome, email:novoAdmin.email, cargo:'administrador'};
+      mostrarToast('Primeiro acesso: conta criada como Administrador.', 'sucesso');
+      renderizarTudo();
+      return;
+    }
+    // Já existem usuários, mas esse e-mail não está entre eles.
+    mostrarToast('E-mail não cadastrado. Solicite acesso abaixo.', 'erro');
+  } else {
+    // Em modo real, chame supabase.auth.signInWithPassword aqui (ver GUIA-DE-IMPLANTACAO.md)
+    mostrarToast('Configure o CONFIG do Supabase para login real.', 'erro');
+  }
+});
+
+/* ============================= BUSCA ============================= */
+function atraso(ms){ return new Promise(r=>setTimeout(r,ms)); }
+async function executarBusca(){
+  const nicho = document.getElementById('input-nicho-custom').value.trim() || state.nichoSelecionado;
+  if (!nicho){ mostrarToast('Escolha ou digite um nicho antes de buscar.', 'erro'); return; }
+  const localizacao = document.getElementById('input-localizacao').value.trim() || 'sua região';
+  state.buscando = true;
+  renderBuscar();
+  if (MODO_DEMO){
+    await atraso(650);
+    state.resultados = gerarResultadosMock(nicho, state.filtroSite);
+  } else {
+    state.resultados = await buscarNoSupabase(nicho, localizacao, state.filtroSite);
+  }
+  state.buscando = false;
+  state.historicoBuscas.unshift({nicho, localizacao, filtroSite:state.filtroSite, resultados:state.resultados.length, quando:new Date()});
+  renderBuscar();
+  mostrarToast(state.resultados.length+' empresas encontradas.', 'sucesso');
+}
+async function buscarNoSupabase(nicho, localizacao, filtroSite){
+  try{
+    const resp = await fetch(CONFIG.SUPABASE_URL+'/functions/v1/'+CONFIG.EDGE_FUNCTION, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+CONFIG.SUPABASE_ANON_KEY,'apikey':CONFIG.SUPABASE_ANON_KEY},
+      body:JSON.stringify({acao:'buscar', nicho, localizacao, filtroSite})
+    });
+    const dados = await resp.json();
+    return dados.empresas || [];
+  }catch(erro){
+    mostrarToast('Erro ao buscar dados reais. Veja o console.', 'erro');
+    console.error(erro);
+    return [];
+  }
+}
+
+/* ============================= PIPELINE (adicionar / mover / excluir) ============================= */
+function adicionarAoPipeline(idResultado){
+  const empresa = state.resultados.find(e=>e.id === idResultado);
+  if (!empresa) return;
+  if (state.pipeline.some(e=>e.placeId === empresa.placeId)){
+    mostrarToast('Esse lead já está no seu pipeline.', 'erro');
+    return;
+  }
+  const copia = Object.assign({}, empresa, {status:'novo_lead'});
+  state.pipeline.unshift(copia);
+  state.historicoStatus.unshift({leadNome:copia.nome, de:null, para:'novo_lead', quando:new Date()});
+  mostrarToast('"'+copia.nome+'" adicionado ao pipeline!', 'sucesso');
+  renderBuscar();
+}
+function moverStatus(idLead, novoStatus){
+  const lead = state.pipeline.find(e=>e.id === idLead);
+  if (!lead || lead.status === novoStatus) return;
+  const statusAnterior = lead.status;
+  lead.status = novoStatus;
+  state.historicoStatus.unshift({leadNome:lead.nome, de:statusAnterior, para:novoStatus, quando:new Date()});
+  renderPipeline();
+}
+function excluirLead(idLead){
+  const lead = state.pipeline.find(e=>e.id === idLead);
+  if (!lead) return;
+  state.pipeline = state.pipeline.filter(e=>e.id !== idLead);
+  mostrarToast('"'+lead.nome+'" removido do pipeline.', 'sucesso');
+  renderPipeline();
+}
+
+/* ============================= RENDERIZAÇÃO ============================= */
+function nomeColuna(id){ const c = COLUNAS_PIPELINE.find(c=>c.id===id); return c ? c.titulo : id; }
+function formatarData(d){
+  return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+function tempoRelativo(d){
+  const diffMin = Math.round((Date.now()-d.getTime())/60000);
+  if (diffMin < 60) return 'há '+Math.max(diffMin,1)+' min';
+  const diffH = Math.round(diffMin/60);
+  if (diffH < 24) return 'há '+diffH+'h';
+  return 'há '+Math.round(diffH/24)+' dia(s)';
+}
+
+function renderizarTudo(){
+  const logado = !!state.usuario;
+  document.getElementById('tela-login').classList.toggle('oculto', logado);
+  document.getElementById('app-principal').classList.toggle('oculto', !logado);
+  if (!logado){
+    document.getElementById('aviso-modo-login').textContent = MODO_DEMO
+      ? 'Ambiente de testes: digite qualquer e-mail e senha. O primeiro acesso vira Administrador automaticamente.'
+      : 'Conectado ao seu projeto Supabase.';
+    return;
+  }
+  document.getElementById('usuario-nome').textContent = state.usuario.nome;
+  document.getElementById('usuario-cargo').textContent = state.usuario.cargo === 'administrador' ? 'Administrador' : 'Vendedor';
+  document.getElementById('usuario-avatar').textContent = state.usuario.nome.charAt(0).toUpperCase();
+  document.querySelectorAll('.somente-admin').forEach(el=>el.classList.toggle('oculto', state.usuario.cargo !== 'administrador'));
+  document.getElementById('selo-modo').textContent = MODO_DEMO ? 'Modo demonstração' : 'Conectado';
+
+  document.querySelectorAll('.item-nav[data-view]').forEach(btn=>btn.classList.toggle('ativo', btn.dataset.view === state.telaAtual));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('ativo'));
+  const viewAtual = document.getElementById('view-'+state.telaAtual);
+  if (viewAtual) viewAtual.classList.add('ativo');
+  const titulos = {buscar:'Buscar Empresas', pipeline:'Pipeline', historico:'Histórico', admin:'Administração'};
+  document.getElementById('titulo-view').textContent = titulos[state.telaAtual] || '';
+
+  if (state.telaAtual === 'buscar') renderBuscar();
+  if (state.telaAtual === 'pipeline') renderPipeline();
+  if (state.telaAtual === 'historico') renderHistorico();
+  if (state.telaAtual === 'admin') renderAdmin();
+}
+
+function renderBuscar(){
+  const cont = document.getElementById('lista-categorias');
+  if (!cont.dataset.montado){
+    cont.innerHTML = NICHOS.map(grupo=>
+      '<div><div class="categoria-grupo-titulo">'+grupo.categoria+'</div><div class="chips-nicho">'+
+      grupo.itens.map(n=>'<button class="chip-nicho" data-nicho="'+n+'">'+n+'</button>').join('')+
+      '</div></div>'
+    ).join('');
+    cont.dataset.montado = '1';
+  }
+  cont.querySelectorAll('.chip-nicho').forEach(chip=>{
+    chip.classList.toggle('selecionado', chip.dataset.nicho === state.nichoSelecionado);
+  });
+
+  const area = document.getElementById('area-resultados');
+  const contagem = document.getElementById('resultados-contagem');
+  if (state.buscando){
+    area.innerHTML = '<div class="esqueleto">'+'<div class="esqueleto-card"></div>'.repeat(6)+'</div>';
+    contagem.textContent = 'Buscando…';
+    return;
+  }
+  if (!state.resultados.length){
+    contagem.textContent = '';
+    area.innerHTML = '<div class="estado-vazio"><div class="estado-vazio-icone">'+icone('buscar',24)+'</div><h4>Nenhuma busca ainda</h4><p>Escolha um nicho e uma cidade acima, depois clique em "Buscar empresas" para ver os resultados aqui.</p></div>';
+    return;
+  }
+  contagem.innerHTML = '<strong>'+state.resultados.length+'</strong> empresas encontradas';
+  let lista = state.resultados.slice();
+  if (state.ordenacao === 'score') lista.sort((a,b)=>b.score-a.score);
+  if (state.ordenacao === 'nota') lista.sort((a,b)=>(b.nota||0)-(a.nota||0));
+  if (state.ordenacao === 'avaliacoes') lista.sort((a,b)=>(b.numAvaliacoes||0)-(a.numAvaliacoes||0));
+
+  area.innerHTML = '<div class="grade-resultados">'+lista.map(e=>{
+    const faixa = faixaScore(e.score);
+    const jaNoPipeline = state.pipeline.some(p=>p.placeId===e.placeId);
+    return '<div class="card-resultado">'
+      +'<div class="card-resultado-topo"><div><div class="card-resultado-nome">'+e.nome+'</div><div class="card-resultado-nicho">'+e.nicho+'</div></div>'
+      +'<span class="selo-score '+faixa.classe+'">'+e.score+'% · '+faixa.rotulo+'</span></div>'
+      +'<div class="card-resultado-endereco">'+e.endereco+'</div>'
+      +'<div class="card-resultado-avaliacao">'+icone('estrela',15)+' '+(e.nota!=null?e.nota.toFixed(1):'—')+' ('+(e.numAvaliacoes!=null?e.numAvaliacoes:0)+' avaliações)</div>'
+      +'<div class="card-resultado-linha">'+icone('telefone',15)+' '+(e.telefone||'Não disponível')+'</div>'
+      +'<div class="card-resultado-linha">'+icone('globo',15)+' '+(e.temSite ? '<a class="selo-com-site" href="'+e.site+'" target="_blank" rel="noopener">'+e.site.replace('https://','')+'</a>' : '<span class="selo-sem-site">Sem site</span>')+'</div>'
+      +'<div class="card-resultado-linha">'+icone('email',15)+' '+(e.email || (e.temSite ? 'não encontrado' : 'não disponível (sem site)'))+'</div>'
+      +'<div class="card-resultado-acoes">'
+        +'<a class="botao botao-secundario" href="https://wa.me/55'+e.telefone.replace(/\D/g,'')+'" target="_blank" rel="noopener">'+icone('chat',15)+' WhatsApp</a>'
+        +'<button class="botao '+(jaNoPipeline?'botao-fantasma':'botao-primario')+'" data-acao="adicionar-pipeline" data-id="'+e.id+'" '+(jaNoPipeline?'disabled':'')+'>'+(jaNoPipeline?'Já no pipeline':'+ Pipeline')+'</button>'
+      +'</div>'
+      +'<a class="link-atribuicao" href="'+e.linkGoogleMaps+'" target="_blank" rel="noopener">'+icone('mapa',13)+' Ver no Google Maps</a>'
+    +'</div>';
+  }).join('')+'</div>';
+}
+
+function renderPipeline(){
+  const quadro = document.getElementById('quadro-kanban');
+  quadro.innerHTML = COLUNAS_PIPELINE.map(col=>{
+    const cards = state.pipeline.filter(l=>l.status===col.id);
+    return '<div class="kanban-coluna" data-status="'+col.id+'">'
+      +'<div class="kanban-coluna-cabeca"><h4>'+col.titulo+'</h4><span class="kanban-contagem">'+cards.length+'</span></div>'
+      +'<div class="kanban-coluna-corpo" data-status="'+col.id+'">'
+        +(cards.length ? cards.map(l=>{
+          const faixa = faixaScore(l.score);
+          return '<div class="card-kanban" draggable="true" data-id="'+l.id+'">'
+            +'<div class="card-kanban-topo"><div><div class="card-kanban-nome">'+l.nome+'</div><div class="card-kanban-nicho">'+l.nicho+'</div></div>'
+            +'<span class="selo-score '+faixa.classe+'" style="font-size:11px;padding:3px 8px;">'+l.score+'%</span></div>'
+            +'<div class="card-kanban-rodape"><a href="https://wa.me/55'+(l.telefone||'').replace(/\D/g,'')+'" target="_blank" rel="noopener" class="icone-botao" title="WhatsApp">'+icone('chat',16)+'</a>'
+            +'<div class="card-kanban-acoes"><button class="icone-botao" data-acao="excluir-lead" data-id="'+l.id+'" title="Remover">'+icone('lixo',16)+'</button></div></div>'
+          +'</div>';
+        }).join('') : '<div class="kanban-vazio">Arraste um lead pra cá</div>')
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function posicionarSliderAbas(){
+  const abas = Array.from(document.querySelectorAll('.aba-slider'));
+  const ativa = abas.find(a=>a.dataset.aba===state.abaHistorico);
+  const fundo = document.getElementById('abas-slider-fundo');
+  if (!ativa || !fundo) return;
+  fundo.style.width = ativa.offsetWidth+'px';
+  fundo.style.transform = 'translateX('+ativa.offsetLeft+'px)';
+}
+function renderHistorico(){
+  document.querySelectorAll('.aba-slider').forEach(a=>a.classList.toggle('ativa', a.dataset.aba===state.abaHistorico));
+  posicionarSliderAbas();
+  const area = document.getElementById('area-historico');
+  if (state.abaHistorico === 'buscas'){
+    if (!state.historicoBuscas.length){ area.innerHTML = '<div class="estado-vazio"><h4>Nenhuma busca registrada</h4><p>Suas buscas por nicho aparecerão aqui.</p></div>'; return; }
+    area.innerHTML = '<div class="lista-historico">'+state.historicoBuscas.map(h=>
+      '<div class="item-historico"><div class="item-historico-icone">'+icone('buscar',17)+'</div>'
+      +'<div class="item-historico-corpo"><div class="item-historico-titulo">'+h.nicho+' em '+h.localizacao+'</div>'
+      +'<div class="item-historico-meta">'+h.resultados+' resultados · filtro: '+(h.filtroSite==='todos'?'todos':h.filtroSite==='com'?'com site':'sem site')+'</div></div>'
+      +'<div class="item-historico-data">'+tempoRelativo(h.quando)+'</div></div>'
+    ).join('')+'</div>';
+  } else {
+    if (!state.historicoStatus.length){ area.innerHTML = '<div class="estado-vazio"><h4>Nenhuma movimentação ainda</h4><p>Mudanças de status dos seus leads aparecerão aqui.</p></div>'; return; }
+    area.innerHTML = '<div class="lista-historico">'+state.historicoStatus.map(h=>
+      '<div class="item-historico"><div class="item-historico-icone">'+icone('pipeline',17)+'</div>'
+      +'<div class="item-historico-corpo"><div class="item-historico-titulo">'+h.leadNome+'</div>'
+      +'<div class="item-historico-meta">'+(h.de?nomeColuna(h.de)+' → ':'Adicionado como ')+nomeColuna(h.para)+'</div></div>'
+      +'<div class="item-historico-data">'+tempoRelativo(h.quando)+'</div></div>'
+    ).join('')+'</div>';
+  }
+}
+
+function renderAdmin(){
+  const interruptor = document.getElementById('interruptor-aceitar-usuarios');
+  interruptor.classList.toggle('ativo', state.aceitaNovosUsuarios);
+  interruptor.setAttribute('aria-checked', state.aceitaNovosUsuarios);
+
+  document.getElementById('contagem-pendentes').textContent = state.solicitacoesAcesso.length;
+  const areaSol = document.getElementById('area-solicitacoes');
+  if (!state.solicitacoesAcesso.length){
+    areaSol.innerHTML = '<div class="estado-vazio-mini">Nenhuma solicitação pendente no momento.</div>';
+  } else {
+    areaSol.innerHTML = '<div class="lista-solicitacoes">'+state.solicitacoesAcesso.map((s,i)=>
+      '<div class="card-solicitacao"><div class="card-solicitacao-corpo">'
+      +'<div class="card-solicitacao-nome">'+s.nome+'</div>'
+      +'<div class="card-solicitacao-meta">'+s.email+' · '+tempoRelativo(s.quando)+'</div></div>'
+      +'<div class="card-solicitacao-acoes">'
+        +'<button class="botao botao-primario" data-acao="aprovar-solicitacao" data-indice="'+i+'">Aprovar</button>'
+        +'<button class="botao botao-perigo" data-acao="recusar-solicitacao" data-indice="'+i+'">Recusar</button>'
+      +'</div></div>'
+    ).join('')+'</div>';
+  }
+
+  const corpo = document.getElementById('corpo-tabela-usuarios');
+  corpo.innerHTML = state.usuarios.map((u,i)=>
+    '<tr><td>'+u.nome+'</td><td>'+u.email+'</td><td><span class="selo-cargo '+u.cargo+'">'+(u.cargo==='administrador'?'Administrador':'Vendedor')+'</span></td>'
+    +'<td><button class="icone-botao" data-acao="remover-usuario" data-indice="'+i+'" title="Remover">'+icone('lixo',16)+'</button></td></tr>'
+  ).join('');
+}
+
+/* ============================= TOAST / MODAL ============================= */
+function mostrarToast(mensagem, tipo){
+  const toast = document.getElementById('toast');
+  toast.textContent = mensagem;
+  toast.className = 'toast toast-visivel'+(tipo?' toast-'+tipo:'');
+  clearTimeout(window._timerToast);
+  window._timerToast = setTimeout(()=>{ toast.className='toast'; }, 2800);
+}
+function fecharModal(){ document.getElementById('modal-overlay').classList.add('oculto'); }
+function abrirModalNovoUsuario(){
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('oculto');
+  overlay.innerHTML = '<div class="modal"><h3>Novo usuário</h3>'
+    +'<label class="campo">Nome<input type="text" id="modal-nome"></label>'
+    +'<label class="campo">E-mail<input type="email" id="modal-email"></label>'
+    +'<label class="campo">Cargo<select id="modal-cargo"><option value="vendedor">Vendedor</option><option value="administrador">Administrador</option></select></label>'
+    +'<div class="modal-acoes"><button class="botao botao-fantasma" data-acao="fechar-modal">Cancelar</button><button class="botao botao-primario" data-acao="salvar-novo-usuario">Adicionar</button></div>'
+  +'</div>';
+}
+function abrirModalSolicitarAcesso(){
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('oculto');
+  overlay.innerHTML = '<div class="modal"><h3>Solicitar acesso</h3>'
+    +'<p style="font-size:13px;color:var(--cor-texto-suave);line-height:1.5;">Envie seus dados para um administrador liberar seu acesso ao LeadRadar.</p>'
+    +'<form id="form-solicitar-acesso" style="display:flex;flex-direction:column;gap:14px;">'
+      +'<label class="campo">Nome completo<input type="text" id="input-solicitar-nome" required></label>'
+      +'<label class="campo">E-mail<input type="email" id="input-solicitar-email" placeholder="voce@suaempresa.com" required></label>'
+      +'<div class="modal-acoes"><button type="button" class="botao botao-fantasma" data-acao="fechar-modal">Cancelar</button><button type="submit" class="botao botao-primario">Enviar solicitação</button></div>'
+    +'</form>'
+  +'</div>';
+  document.getElementById('form-solicitar-acesso').addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!state.aceitaNovosUsuarios){
+      mostrarToast('O cadastro de novos usuários está desativado no momento.', 'erro');
+      return;
+    }
+    const nome = document.getElementById('input-solicitar-nome').value.trim();
+    const email = document.getElementById('input-solicitar-email').value.trim().toLowerCase();
+    if (state.usuarios.some(u=>u.email.toLowerCase()===email) || state.solicitacoesAcesso.some(s=>s.email.toLowerCase()===email)){
+      mostrarToast('Já existe um cadastro ou solicitação com esse e-mail.', 'erro');
+      return;
+    }
+    state.solicitacoesAcesso.push({nome, email, quando:new Date()});
+    fecharModal();
+    mostrarToast('Solicitação enviada! Um administrador vai analisar seu acesso.', 'sucesso');
+  });
+}
+
+/* ============================= EVENTOS (delegação) ============================= */
+document.addEventListener('click', function(e){
+  const alvoView = e.target.closest('[data-view]');
+  if (alvoView){ state.telaAtual = alvoView.dataset.view; renderizarTudo(); return; }
+
+  const chip = e.target.closest('.chip-nicho');
+  if (chip){ state.nichoSelecionado = (state.nichoSelecionado===chip.dataset.nicho) ? null : chip.dataset.nicho; renderBuscar(); return; }
+
+  const segBtn = e.target.closest('#segmentado-site button');
+  if (segBtn){ state.filtroSite = segBtn.dataset.valor; document.querySelectorAll('#segmentado-site button').forEach(b=>b.classList.toggle('ativo', b===segBtn)); return; }
+
+  const aba = e.target.closest('.aba-slider');
+  if (aba){ state.abaHistorico = aba.dataset.aba; renderHistorico(); return; }
+
+  const alvo = e.target.closest('[data-acao]');
+  if (!alvo) return;
+  const acao = alvo.dataset.acao;
+  if (acao === 'sair') sair();
+  else if (acao === 'buscar') executarBusca();
+  else if (acao === 'limpar-nicho'){ state.nichoSelecionado=null; document.getElementById('input-nicho-custom').value=''; renderBuscar(); }
+  else if (acao === 'adicionar-pipeline') adicionarAoPipeline(alvo.dataset.id);
+  else if (acao === 'excluir-lead') excluirLead(alvo.dataset.id);
+  else if (acao === 'abrir-novo-usuario') abrirModalNovoUsuario();
+  else if (acao === 'abrir-solicitar-acesso') abrirModalSolicitarAcesso();
+  else if (acao === 'fechar-modal') fecharModal();
+  else if (acao === 'salvar-novo-usuario'){
+    const nome = document.getElementById('modal-nome').value.trim();
+    const email = document.getElementById('modal-email').value.trim();
+    const cargo = document.getElementById('modal-cargo').value;
+    if (!nome || !email){ mostrarToast('Preencha nome e e-mail.', 'erro'); return; }
+    state.usuarios.push({nome, email, cargo});
+    fecharModal(); renderAdmin();
+    mostrarToast('Usuário adicionado.', 'sucesso');
+  }
+  else if (acao === 'remover-usuario'){
+    state.usuarios.splice(Number(alvo.dataset.indice),1);
+    renderAdmin();
+  }
+  else if (acao === 'alternar-aceitar-usuarios'){
+    state.aceitaNovosUsuarios = !state.aceitaNovosUsuarios;
+    renderAdmin();
+    mostrarToast(state.aceitaNovosUsuarios ? 'Novos cadastros ativados.' : 'Novos cadastros desativados.', state.aceitaNovosUsuarios ? 'sucesso' : null);
+  }
+  else if (acao === 'aprovar-solicitacao'){
+    const idx = Number(alvo.dataset.indice);
+    const sol = state.solicitacoesAcesso[idx];
+    if (!sol) return;
+    state.usuarios.push({nome:sol.nome, email:sol.email, cargo:'vendedor'});
+    state.solicitacoesAcesso.splice(idx,1);
+    renderAdmin();
+    mostrarToast('"'+sol.nome+'" aprovado como Vendedor.', 'sucesso');
+  }
+  else if (acao === 'recusar-solicitacao'){
+    const idx = Number(alvo.dataset.indice);
+    const sol = state.solicitacoesAcesso[idx];
+    if (!sol) return;
+    state.solicitacoesAcesso.splice(idx,1);
+    renderAdmin();
+    mostrarToast('Solicitação de "'+sol.nome+'" recusada.', null);
+  }
+});
+document.getElementById('select-ordenar').addEventListener('change', function(e){ state.ordenacao = e.target.value; renderBuscar(); });
+document.getElementById('modal-overlay').addEventListener('click', function(e){ if (e.target.id === 'modal-overlay') fecharModal(); });
+window.addEventListener('resize', function(){ if (state.telaAtual === 'historico') posicionarSliderAbas(); });
+
+// Drag and drop do Kanban
+document.addEventListener('dragstart', function(e){
+  const card = e.target.closest('.card-kanban');
+  if (!card) return;
+  e.dataTransfer.setData('text/plain', card.dataset.id);
+  setTimeout(()=>card.classList.add('arrastando'),0);
+});
+document.addEventListener('dragend', function(e){
+  const card = e.target.closest('.card-kanban');
+  if (card) card.classList.remove('arrastando');
+  document.querySelectorAll('.arraste-sobre').forEach(el=>el.classList.remove('arraste-sobre'));
+});
+document.addEventListener('dragover', function(e){
+  const coluna = e.target.closest('.kanban-coluna-corpo');
+  if (coluna){ e.preventDefault(); coluna.classList.add('arraste-sobre'); }
+});
+document.addEventListener('dragleave', function(e){
+  const coluna = e.target.closest('.kanban-coluna-corpo');
+  if (coluna) coluna.classList.remove('arraste-sobre');
+});
+document.addEventListener('drop', function(e){
+  const coluna = e.target.closest('.kanban-coluna-corpo');
+  if (!coluna) return;
+  e.preventDefault();
+  coluna.classList.remove('arraste-sobre');
+  const id = e.dataTransfer.getData('text/plain');
+  moverStatus(id, coluna.dataset.status);
+});
+
+/* ============================= INICIALIZAÇÃO ============================= */
+document.getElementById('icone-marca-login').innerHTML = icone('buscar',20);
+document.getElementById('icone-marca-mini').innerHTML = icone('buscar',17);
+document.querySelectorAll('[data-icone]').forEach(el=>{ el.innerHTML = icone(el.dataset.icone,17); });
+renderizarTudo();
+</script>
+</body>
+</html>
